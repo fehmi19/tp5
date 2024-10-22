@@ -1,9 +1,11 @@
 package com.example.tp2
 
+import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -15,6 +17,7 @@ fun LoginScreen(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -53,8 +56,16 @@ fun LoginScreen(navController: NavController) {
                 if (email.isBlank() || password.isBlank()) {
                     errorMessage = "Veuillez remplir tous les champs."
                 } else {
+                    // Save login state to SharedPreferences
+                    val sharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                    with(sharedPreferences.edit()) {
+                        putBoolean("is_logged_in", true)
+                        apply()  // Save the login state
+                    }
                     errorMessage = ""
-                    // Logique de connexion ici
+                    navController.navigate("home") {
+                        popUpTo("login") { inclusive = true }  // Clears backstack
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -83,6 +94,8 @@ fun LoginScreen(navController: NavController) {
         }
     }
 }
+
+
 
 @Preview(showBackground = true)
 @Composable
